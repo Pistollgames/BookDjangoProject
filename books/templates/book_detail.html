@@ -1,0 +1,35 @@
+<html>
+<head>
+    <title>{{ book.title }}</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: 20px auto; }
+    </style>
+</head>
+<body>
+    <h1>{{ book.title }}</h1>
+    <h3>{{ book.author }}</h3>
+    <p><strong>Страниц:</strong> {{ book.pages }}</p>
+    <p><strong>Добавлена:</strong> {{ book.created|date:"d.m.Y" }}</p>
+    <h2>Мой прогресс</h2>
+    <form method="post" action="/book/{{ book.id }}/update/">
+        {% csrf_token %}
+        <label>Статус:</label><br>
+        <select name="status">
+            <option value="want">Хочу прочитать</option>
+            <option value="reading">Читаю</option>
+            <option value="done">Прочитано</option>
+        </select><br><br>
+        <label>Оценка (1-5):</label><br>
+        <select name="rating">
+            <option value="0">Нет оценки</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select><br><br>
+        <button type="submit">Сохранить</button>
+    </form>
+    <p><a href="/">← Назад к списку книг</a></p>
+</body>
+</html>

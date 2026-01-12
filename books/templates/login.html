@@ -1,0 +1,14 @@
+{% extends 'books/base.html' %}
+{% block title %}Вход - Book Tracker{% endblock %}
+{% block content %}
+    <h2>Вход в систему</h2>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Имя пользователя" required>
+        <input type="password" name="password" placeholder="Пароль" required>
+        <button type="submit">Войти</button>
+    </form>
+    {% if form.errors %}
+        <p class="error">Неверное имя пользователя или пароль.</p>
+    {% endif %}
+{% endblock %}

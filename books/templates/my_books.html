@@ -1,0 +1,16 @@
+{% extends 'books/base.html' %}
+{% block title %}Мои книги - Book Tracker{% endblock %}
+{% block content %}
+    <h1>Мои книги ({{ books.count }})</h1>
+    <a href="{% url 'add_book' %}">Добавить книгу</a>
+    {% for book in books %}
+        <div class="book">
+            <h3>{{ book.title }}</h3>
+            <p>Автор: {{ book.author }}</p>
+            <p>Страниц: {{ book.pages }}</p>
+            <a href="{% url 'book_detail' book.id %}">Подробнее</a>
+        </div>
+    {% empty %}
+        <p>У вас пока нет книг. <a href="{% url 'add_book' %}">Добавить первую?</a></p>
+    {% endfor %}
+{% endblock %}

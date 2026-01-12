@@ -1,0 +1,39 @@
+<html>
+<head>
+    <title>Поиск книг</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 20px auto; }
+        .book { border: 1px solid #ddd; padding: 15px; margin: 10px 0; }
+        form { margin: 20px 0; }
+        input { padding: 8px; width: 300px; }
+    </style>
+</head>
+<body>
+    <h1>Поиск книг в Google Books</h1>
+    <form method="get">
+        <input type="text" name="q" value="{{ query }}" placeholder="Поиск книг...">
+        <button type="submit">Искать</button>
+    </form>
+    {% if query %}
+    <h2>Результаты для "{{ query }}":</h2>
+    {% for book in books %}
+    <div class="book">
+        <h3>{{ book.title }}</h3>
+        <p>Автор: {{ book.author }}</p>
+        <p>{{ book.description|truncatechars:200 }}</p>
+        <p>Страниц: {{ book.pages }}</p>
+        <form method="post" action="/add/">
+            {% csrf_token %}
+            <input type="hidden" name="title" value="{{ book.title }}">
+            <input type="hidden" name="author" value="{{ book.author }}">
+            <input type="hidden" name="pages" value="{{ book.pages }}">
+            <button type="submit">Добавить в мои книги</button>
+        </form>
+    </div>
+    {% empty %}
+    <p>Ничего не найдено</p>
+    {% endfor %}
+    {% endif %}
+    <p><a href="/">← Назад к списку книг</a></p>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<html>
+<head>
+    <title>Добавить книгу</title>
+    <style>
+        body { font-family: Arial; max-width: 500px; margin: 20px auto; }
+        input, textarea { width: 100%; margin: 5px 0; padding: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Добавить книгу</h1>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="title" placeholder="Название" required>
+        <input type="text" name="author" placeholder="Автор" required>
+        <input type="number" name="pages" placeholder="Количество страниц">
+        <button type="submit">Добавить</button>
+    </form>
+    <p><a href="/">← Назад</a></p>
+</body>
+</html>
