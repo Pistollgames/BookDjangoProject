@@ -1,35 +1,34 @@
-<html>
-<head>
-    <title>{{ book.title }}</title>
-    <style>
-        body { font-family: Arial; max-width: 600px; margin: 20px auto; }
-    </style>
-</head>
-<body>
-    <h1>{{ book.title }}</h1>
-    <h3>{{ book.author }}</h3>
-    <p><strong>Страниц:</strong> {{ book.pages }}</p>
-    <p><strong>Добавлена:</strong> {{ book.created|date:"d.m.Y" }}</p>
+{% extends 'base.html' %}
+{% block title %}{{ book.title }} - Book Tracker{% endblock %}
+{% block content %}
+<h1>{{ book.title }}</h1>
+<h3>{{ book.author }}</h3>
+<p><strong>Описание:</strong> {{ book.description }}</p>
+<p><strong>Страниц:</strong> {{ book.pages }}</p>
+<p><strong>Добавлена:</strong> {{ book.created|date:"d.m.Y" }}</p>
+{% if user.is_authenticated and user == book.user %}
     <h2>Мой прогресс</h2>
-    <form method="post" action="/book/{{ book.id }}/update/">
+    <form method="post" action="{% url 'update_reading' book.id %}">
         {% csrf_token %}
         <label>Статус:</label><br>
         <select name="status">
-            <option value="want">Хочу прочитать</option>
-            <option value="reading">Читаю</option>
-            <option value="done">Прочитано</option>
+            <option value="want" {% if progress.status == 'want' %}selected{% endif %}>Хочу прочитать</option>
+            <option value="reading" {% if progress.status == 'reading' %}selected{% endif %}>Читаю</option>
+            <option value="done" {% if progress.status == 'done' %}selected{% endif %}>Прочитано</option>
         </select><br><br>
         <label>Оценка (1-5):</label><br>
         <select name="rating">
-            <option value="0">Нет оценки</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
+            <option value="0" {% if progress.rating == 0 %}selected{% endif %}>Нет оценки</option>
+            <option value="1" {% if progress.rating == 1 %}selected{% endif %}>1</option>
+            <option value="2" {% if progress.rating == 2 %}selected{% endif %}>2</option>
+            <option value="3" {% if progress.rating == 3 %}selected{% endif %}>3</option>
+            <option value="4" {% if progress.rating == 4 %}selected{% endif %}>4</option>
+            <option value="5" {% if progress.rating == 5 %}selected{% endif %}>5</option>
         </select><br><br>
         <button type="submit">Сохранить</button>
     </form>
-    <p><a href="/">← Назад к списку книг</a></p>
-</body>
-</html>
+{% elif not user.is_authenticated %}
+    <p><a href="{% url 'login' %}">Войдите</a>, чтобы отслеживать прогресс чтения этой книги.</p>
+{% endif %}
+<p><a href="{% url 'home' %}">← Назад к списку книг</a></p>
+{% endblock %}

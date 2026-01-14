@@ -1,13 +1,10 @@
-<html>
-<head>
-    <title>Добавить книгу</title>
-    <style>
-        body { font-family: Arial; max-width: 500px; margin: 20px auto; }
-        input, textarea { width: 100%; margin: 5px 0; padding: 8px; }
-    </style>
-</head>
-<body>
-    <h1>Добавить книгу</h1>
+{% extends 'base.html' %}
+{% block title %}Добавить книгу{% endblock %}
+{% block content %}
+<h1>Добавить книгу</h1>
+{% if not user.is_authenticated %}
+    <p>Пожалуйста, <a href="/login/">войдите</a> чтобы добавлять книги.</p>
+{% else %}
     <form method="post">
         {% csrf_token %}
         <input type="text" name="title" placeholder="Название" required>
@@ -15,6 +12,6 @@
         <input type="number" name="pages" placeholder="Количество страниц">
         <button type="submit">Добавить</button>
     </form>
-    <p><a href="/">← Назад</a></p>
-</body>
-</html>
+{% endif %}
+<p><a href="/">← Назад</a></p>
+{% endblock %}

@@ -1,18 +1,25 @@
 from django.shortcuts import render, redirect
 from .models import Book, Reading
 from .services import get_books
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
 
 
 def home(request):
-    books = Book.objects.all()
+    if request.user.is_authenticated:
+        books = Book.objects.filter(user=request.user)
+    else:
+        books = Book.objects.none()
     return render(request, 'home.html', {'books': books})
 
+@login_required
 def add_book(request):
     if request.method == 'POST':
         title = request.POST['title']
         author = request.POST['author']
         pages = request.POST.get('pages', 0)
-        Book.objects.create(title=title, author=author, pages=pages)
+        Book.objects.create(title=title, author=author, pages=pages, user=request.user)
         return redirect('home')
     return render(request, 'add_book.html')
 
@@ -23,10 +30,18 @@ def search_books(request):
         books = get_books(query)
     return render(request, 'search.html', {'books': books, 'query': request.GET.get('q', '')})
 
+
 def book_detail(request, book_id):
     book = Book.objects.get(id=book_id)
-    return render(request, 'book_detail.html', {'book': book})
+    progress = None
+    if request.user.is_authenticated and request.user == book.user:
+        try:
+            progress = Reading.objects.get(user=request.user, book=book)
+        except Reading.DoesNotExist:
+            progress = Reading(user=request.user, book=book)
+    return render(request, 'book_detail.html', {'book': book, 'progress': progress})
 
+@login_required
 def update_reading(request, book_id):
     if request.method == 'POST':
         book = Book.objects.get(id=book_id)
@@ -37,3 +52,24 @@ def update_reading(request, book_id):
         reading.rating = rating
         reading.save()
         return redirect('book_detail', book_id=book_id)
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
+
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+    return render(request, 'login.html')

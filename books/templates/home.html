@@ -1,20 +1,9 @@
-<html>
-<head>
-    <title>Мои книги</title>
-    <style>
-        body { font-family: Arial; max-width: 800px; margin: 20px auto; }
-        .book { border: 1px solid #ddd; padding: 15px; margin: 10px 0; }
-        .nav { margin-bottom: 20px; }
-        .nav a { margin-right: 10px; }
-    </style>
-</head>
-<body>
-    <div class="nav">
-        <a href="/">Главная</a>
-        <a href="/add/">Добавить книгу</a>
-        <a href="/search/">Поиск в API</a>
-    </div>
-    <h1>Мои книги</h1>
+{% extends 'base.html' %}
+{% block title %}Мои книги{% endblock %}
+{% block content %}
+<h1>Мои книги</h1>
+{% if user.is_authenticated %}
+    <p>Всего книг: {{ books.count }}</p>
     {% for book in books %}
     <div class="book">
         <h3>{{ book.title }}</h3>
@@ -23,7 +12,9 @@
         <a href="/book/{{ book.id }}/">Подробнее</a>
     </div>
     {% empty %}
-    <p>Нет книг. <a href="/add/">Добавить первую?</a></p>
+    <p>У вас пока нет книг. <a href="/add/">Добавить первую?</a></p>
     {% endfor %}
-</body>
-</html>
+{% else %}
+    <p>Пожалуйста, <a href="/login/">войдите</a> или <a href="/register/">зарегистрируйтесь</a> чтобы видеть свои книги.</p>
+{% endif %}
+{% endblock %}
