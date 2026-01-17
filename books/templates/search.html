@@ -3,25 +3,35 @@
 {% block content %}
 <h1>Поиск книг в Google Books</h1>
 <form method="get">
-    <input type="text" name="q" value="{{ query }}" placeholder="Введите название книги или автора...">
+    <input type="text" name="q" value="{{ query }}" placeholder="Введите название книги или автора..." required>
     <button type="submit">Искать</button>
 </form>
 {% if query %}
-    <h2>Результаты для "{{ query }}":</h2>
+    <h2>Результаты для "{{ query }}":</h2> 
     {% if books %}
+        <p>Найдено книг: <strong>{{ total_results }}</strong></p>
+        <p>Показано книги {{ books|length }} из {{ total_results }} на странице {{ current_page }} из {{ total_pages }}</p>
         {% for book in books %}
         <div class="book">
             <h3>{{ book.title }}</h3>
             <p><strong>Автор:</strong> {{ book.author }}</p>
-            <p class="description">{{ book.description|truncatechars:200 }}</p>
-            <p><strong>Страниц:</strong> {{ book.pages }}</p>
+            {% if book.description and book.description != 'Описание отсутствует' %}
+                <p class="description">{{ book.description|truncatechars:300 }}</p>
+            {% else %}
+                <p><em>Описание отсутствует</em></p>
+            {% endif %}
+            {% if book.pages > 0 %}
+                <p><strong>Страниц:</strong> {{ book.pages }}</p>
+            {% endif %}
             {% if user.is_authenticated %}
             <form method="post" action="{% url 'add_book' %}">
                 {% csrf_token %}
                 <input type="hidden" name="title" value="{{ book.title }}">
                 <input type="hidden" name="author" value="{{ book.author }}">
                 <input type="hidden" name="pages" value="{{ book.pages }}">
-                <input type="hidden" name="description" value="{{ book.description }}">
+                {% if book.description and book.description != 'Описание отсутствует' %}
+                    <input type="hidden" name="description" value="{{ book.description }}">
+                {% endif %}
                 <button type="submit">Добавить в мои книги</button>
             </form>
             {% else %}
@@ -29,6 +39,19 @@
             {% endif %}
         </div>
         {% endfor %}
+        {% if total_pages > 1 %}
+        <div class="pagination">
+            {% if has_previous %}
+                <a href="?q={{ query }}&page=1">« Первая</a>
+                <a href="?q={{ query }}&page={{ previous_page }}">‹ Предыдущая</a>
+            {% endif %}
+            <span>Страница {{ current_page }} из {{ total_pages }}</span>
+            {% if has_next %}
+                <a href="?q={{ query }}&page={{ next_page }}">Следующая ›</a>
+                <a href="?q={{ query }}&page={{ total_pages }}">Последняя »</a>
+            {% endif %}
+        </div>
+        {% endif %}
     {% else %}
         <p>Книги не найдены. Попробуйте другой запрос.</p>
     {% endif %}

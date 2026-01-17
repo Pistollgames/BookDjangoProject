@@ -3,17 +3,31 @@
 {% block content %}
 <h1>Мои книги</h1>
 {% if user.is_authenticated %}
-    <p>Всего книг: {{ books.count }}</p>
-    {% for book in books %}
-    <div class="book">
-        <h3>{{ book.title }}</h3>
-        <p>Автор: {{ book.author }}</p>
-        <p>Страниц: {{ book.pages }}</p>
-        <a href="/book/{{ book.id }}/">Подробнее</a>
-    </div>
-    {% empty %}
-    <p>У вас пока нет книг. <a href="/add/">Добавить первую?</a></p>
-    {% endfor %}
+    <p>Всего книг: {{ books.paginator.count }}</p>
+    {% if books %}
+        <p>Показано книги {{ books.start_index }} - {{ books.end_index }} из {{ books.paginator.count }}</p>
+        {% for book in books %}
+        <div class="book">
+            <h3>{{ book.title }}</h3>
+            <p>Автор: {{ book.author }}</p>
+            <p>Страниц: {{ book.pages }}</p>
+            <a href="/book/{{ book.id }}/">Подробнее</a>
+        </div>
+        {% endfor %}
+        {% if books.has_other_pages %}
+        <div class="pagination">
+            {% if books.has_previous %}
+                <a href="?page={{ books.previous_page_number }}">← Предыдущая</a>
+            {% endif %}
+            <span>Страница {{ books.number }} из {{ books.paginator.num_pages }}</span>
+            {% if books.has_next %}
+                <a href="?page={{ books.next_page_number }}">Следующая →</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    {% else %}
+        <p>У вас пока нет книг. <a href="/add/">Добавить первую?</a></p>
+    {% endif %}
 {% else %}
     <p>Пожалуйста, <a href="/login/">войдите</a> или <a href="/register/">зарегистрируйтесь</a> чтобы видеть свои книги.</p>
 {% endif %}

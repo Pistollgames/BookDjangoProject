@@ -2,11 +2,57 @@
 {% block title %}Регистрация{% endblock %}
 {% block content %}
 <h1>Регистрация</h1>
+{% if form.errors %}
+<div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">
+    <strong>Ошибки:</strong>
+    <ul>
+    {% for field in form %}
+        {% for error in field.errors %}
+            <li>{{ field.label }}: {{ error }}</li>
+        {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
 <form method="post">
     {% csrf_token %}
-    <input type="text" name="username" placeholder="Имя пользователя" required>
-    <input type="password" name="password1" placeholder="Пароль" required>
-    <input type="password" name="password2" placeholder="Подтвердите пароль" required>
+    <div style="margin: 10px 0;">
+        <label>Имя пользователя:</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+        <div style="color: red; font-size: 12px;">
+            {% for error in form.username.errors %}
+            {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    <div style="margin: 10px 0;">
+        <label>Пароль:</label>
+        {{ form.password1 }}
+        {% if form.password1.errors %}
+        <div style="color: red; font-size: 12px;">
+            {% for error in form.password1.errors %}
+            {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+        <small style="color: #666;">Минимум 8 символов, не только цифры</small>
+    </div>
+    <div style="margin: 10px 0;">
+        <label>Подтвердите пароль:</label>
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+        <div style="color: red; font-size: 12px;">
+            {% for error in form.password2.errors %}
+            {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
     <button type="submit">Зарегистрироваться</button>
 </form>
 <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
