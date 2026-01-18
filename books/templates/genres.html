@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block title %}Мои предпочтения по жанрам{% endblock %}
+{% block content %}
+<h1>Мои предпочтения по жанрам</h1>
+<div class="stats-summary">
+    <div class="stat-card">
+        <h3>Всего книг</h3>
+        <p class="stat-number">{{ total_books }}</p>
+    </div>
+    <div class="stat-card">
+        <h3>Всего страниц</h3>
+        <p class="stat-number">{{ total_pages }}</p>
+    </div>
+    <div class="stat-card">
+        <h3>Уникальных жанров</h3>
+        <p class="stat-number">{{ stats|length }}</p>
+    </div>
+</div>
+{% if top_genres %}
+<h2>Топ-5 жанров</h2>
+<div class="top-genres">
+    {% for stat in top_genres %}
+    <div class="genre-card">
+        <h3>{{ stat.genre.name }}</h3>
+        <p>Книг: {{ stat.book_count }}</p>
+        <p>Страниц: {{ stat.total_pages }}</p>
+        <p>Средняя оценка: {{ stat.average_rating }}/5</p>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: {{ stat.percentage }}%"></div>
+        </div>
+        <p>{{ stat.percentage }}% от всех книг</p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+<h2>Все жанры</h2>
+{% if stats %}
+<table class="genre-table">
+    <thead>
+        <tr>
+            <th>Жанр</th>
+            <th>Количество книг</th>
+            <th>Всего страниц</th>
+            <th>Средняя оценка</th>
+            <th>Процент от коллекции</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stat in stats %}
+        <tr>
+            <td>{{ stat.genre.name }}</td>
+            <td>{{ stat.book_count }}</td>
+            <td>{{ stat.total_pages }}</td>
+            <td>
+                {% if stat.average_rating > 0 %}
+                    {{ stat.average_rating }}/5
+                {% else %}
+                    Нет оценок
+                {% endif %}
+            </td>
+            <td>
+                <div class="progress-bar-small">
+                    <div class="progress-fill" style="width: {{ stat.percentage }}%"></div>
+                </div>
+                {{ stat.percentage }}%
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>У вас пока нет книг с указанными жанрами.</p>
+{% endif %}
+<h2>Рекомендации</h2>
+<div class="recommendations">
+    {% if top_genres %}
+        <p>На основе ваших предпочтений мы рекомендуем:</p>
+        <ul>
+            <li>Попробуйте <a href="{% url 'search_books' %}?q={{ top_genres.0.genre.name }}">поискать книги в жанре "{{ top_genres.0.genre.name }}"</a></li>
+            <li>Изучите <a href="{% url 'search_books' %}?q={{ top_genres.1.genre.name }}">{{ top_genres.1.genre.name }}</a> - ваш второй по популярности жанр</li>
+        </ul>
+    {% else %}
+        <p>Добавьте больше книг, чтобы получить рекомендации.</p>
+    {% endif %}
+</div>
+<style>
+    .stats-summary {
+        display: flex;
+        gap: 20px;
+        margin: 30px 0;
+    }
+    .stat-card {
+        flex: 1;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        text-align: center;
+    }
+    .stat-number {
+        font-size: 2em;
+        font-weight: bold;
+        color: #007bff;
+        margin: 10px 0;
+    }
+    .top-genres {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+    }    
+    .genre-card {
+        padding: 20px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+    }
+    .progress-bar {
+        height: 20px;
+        background-color: #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 10px 0;
+    }
+    .progress-bar-small {
+        height: 10px;
+        background-color: #e9ecef;
+        border-radius: 5px;
+        overflow: hidden;
+        margin: 5px 0;
+    }
+    .progress-fill {
+        height: 100%;
+        background-color: #28a745;
+        transition: width 0.3s ease;
+    }
+    .genre-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    .genre-table th,
+    .genre-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    .genre-table th {
+        background-color: #f8f9fa;
+    }
+    .genre-tag {
+        display: inline-block;
+        background-color: #e9ecef;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.9em;
+        margin: 2px;
+    }
+    .recommendations {
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        margin-top: 30px;
+    }
+</style>
+{% endblock %}

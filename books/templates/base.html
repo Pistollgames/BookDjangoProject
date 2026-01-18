@@ -79,6 +79,14 @@
         em {
             color: #999;
         }
+        .genre-tag {
+            display: inline-block;
+            background-color: #e9ecef;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            margin: 2px;
+        }
     </style>
 </head>
 <body>
@@ -87,6 +95,9 @@
             <a href="/">Главная</a>
             <a href="/add/">Добавить книгу</a>
             <a href="/search/">Поиск в API</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'genre_preferences' %}">Мои предпочтения</a>
+            {% endif %}
         </div>
         <div class="nav-right">
             {% if user.is_authenticated %}

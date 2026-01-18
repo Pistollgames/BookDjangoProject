@@ -2,12 +2,13 @@
 {% block title %}Поиск книг{% endblock %}
 {% block content %}
 <h1>Поиск книг в Google Books</h1>
+
 <form method="get">
     <input type="text" name="q" value="{{ query }}" placeholder="Введите название книги или автора..." required>
     <button type="submit">Искать</button>
 </form>
 {% if query %}
-    <h2>Результаты для "{{ query }}":</h2> 
+    <h2>Результаты для "{{ query }}":</h2>
     {% if books %}
         <p>Найдено книг: <strong>{{ total_results }}</strong></p>
         <p>Показано книги {{ books|length }} из {{ total_results }} на странице {{ current_page }} из {{ total_pages }}</p>
@@ -15,6 +16,13 @@
         <div class="book">
             <h3>{{ book.title }}</h3>
             <p><strong>Автор:</strong> {{ book.author }}</p>
+            {% if book.genres %}
+                <p><strong>Жанры:</strong> 
+                    {% for genre in book.genres %}
+                        <span class="genre-tag">{{ genre }}</span>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+            {% endif %}
             {% if book.description and book.description != 'Описание отсутствует' %}
                 <p class="description">{{ book.description|truncatechars:300 }}</p>
             {% else %}
@@ -32,6 +40,9 @@
                 {% if book.description and book.description != 'Описание отсутствует' %}
                     <input type="hidden" name="description" value="{{ book.description }}">
                 {% endif %}
+                {% for genre in book.genres %}
+                    <input type="hidden" name="genres" value="{{ genre }}">
+                {% endfor %}
                 <button type="submit">Добавить в мои книги</button>
             </form>
             {% else %}

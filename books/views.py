@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Book, Reading
+from .models import Book, Reading, Genre
 from .services import get_all_books
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-import json
+from .utils import get_or_create_genres, update_user_genre_preferences, calculate_user_genre_stats
+from django.db import models
 
 
 def home(request):
@@ -31,15 +32,29 @@ def add_book(request):
         author = request.POST['author']
         pages = request.POST.get('pages', 0) or 0
         description = request.POST.get('description', '')
-        Book.objects.create(
+        genre_names = request.POST.getlist('genres')
+        book = Book.objects.create(
             title=title,
             author=author,
             pages=pages,
             description=description,
             user=request.user
         )
+        if genre_names:
+            genres = get_or_create_genres(genre_names)
+            book.genres.set(genres)
+            book.save()
+            update_user_genre_preferences(request.user, book, added=True)
         return redirect('home')
-    return render(request, 'add_book.html')
+    all_genres = Genre.objects.all()
+    return render(request, 'add_book.html', {'all_genres': all_genres})
+
+@login_required
+def delete_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id, user=request.user)
+    update_user_genre_preferences(request.user, book, added=False)
+    book.delete()
+    return redirect('home')
 
 def search_books(request):
     query = request.GET.get('q', '')
@@ -113,6 +128,19 @@ def update_reading(request, book_id):
             reading.rating = rating
             reading.save()
         return redirect('book_detail', book_id=book_id)
+
+@login_required
+def genre_preferences(request):
+    stats = calculate_user_genre_stats(request.user)
+    total_books = Book.objects.filter(user=request.user).count()
+    total_pages = Book.objects.filter(user=request.user).aggregate(models.Sum('pages'))['pages__sum'] or 0
+    top_genres = stats[:5] if len(stats) > 5 else stats
+    return render(request, 'genres.html', {
+        'stats': stats,
+        'total_books': total_books,
+        'total_pages': total_pages,
+        'top_genres': top_genres,
+    })
 
 def register(request):
     if request.method == 'POST':
