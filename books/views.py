@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Book, Reading, Genre
 from .services import get_all_books
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -30,9 +30,13 @@ def add_book(request):
     if request.method == 'POST':
         title = request.POST['title']
         author = request.POST['author']
-        pages = request.POST.get('pages', 0) or 0
+        try:
+            pages = int(request.POST.get('pages', 0))
+        except (ValueError, TypeError):
+            pages = 0
         description = request.POST.get('description', '')
         genre_names = request.POST.getlist('genres')
+        print(f"Добавляем книгу: {title}, автор: {author}, страниц: {pages}, жанры: {genre_names}")
         book = Book.objects.create(
             title=title,
             author=author,
@@ -45,6 +49,9 @@ def add_book(request):
             book.genres.set(genres)
             book.save()
             update_user_genre_preferences(request.user, book, added=True)
+            print(f"Книга добавлена с жанрами: {[g.name for g in genres]}")
+        else:
+            print("Книга добавлена без жанров")
         return redirect('home')
     all_genres = Genre.objects.all()
     return render(request, 'add_book.html', {'all_genres': all_genres})
@@ -162,3 +169,7 @@ def user_login(request):
             login(request, user)
             return redirect('home')
     return render(request, 'login.html')
+
+def user_logout(request):
+    logout(request)
+    return redirect('home')

@@ -11,6 +11,6 @@ urlpatterns = [
     path('book/<int:book_id>/delete/', views.delete_book, name='delete_book'),
     path('register/', views.register, name='register'),
     path('login/', views.user_login, name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('genres/', views.genre_preferences, name='genre_preferences'),  # Новый маршрут
+    path('logout/', views.user_logout, name='logout'),
+    path('genres/', views.genre_preferences, name='genre_preferences'),
 ]
